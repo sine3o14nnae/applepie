@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# xprop(1) wm_class
+BLACKLIST='torbrowser$\|tor browser$'
+PRNDMLIST='chrome$\|chromium$\|brave$\|firefox$\|firefox-esr$\|surf$\|qutebrowser$'
+
+
+WIN=$(xdotool getwindowfocus)
+
+# Get $WIDTH and $HEIGHT
+eval "$(xdotool getwindowgeometry --shell "$WIN")"
+
+
+[ "$WIDTH" -eq 1 ] && [ "$HEIGHT" -eq 1 ] && exit 2
+
+WMCLASS=$(xprop -id "$WIN" WM_CLASS | cut -d\" -f4)
+
+if $WMCLASS | grep -q "$BLACKLIST"; then exit 1
+
+elif $WMCLASS | grep -q "$PRNDMLIST"; then
+
+	RSX=$(shuf -i 100-"$WIDTH" -n 1)
+	RSY=$(shuf -i 100-"$HEIGHT" -n 1)
+
+	TX=$((WIDTH - RSX + 10))
+	TY=$((HEIGHT - RSY + 10))
+else
+
+	TX=$((WIDTH / 2))
+	TY=$((HEIGHT / 2))
+fi
+
+xdotool mousemove -window "$WIN" "$TX" "$TY"
